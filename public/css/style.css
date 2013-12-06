@@ -1,0 +1,204 @@
+html{
+  width: 100%;
+  height: 100%;
+}
+
+html, body{
+  min-width: 100%;
+  min-height: 100%;
+  background: #678986; /* Old browsers */
+  background: -moz-linear-gradient(-45deg,  #678986 0%, #23538a 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,#678986), color-stop(100%,#23538a)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(-45deg,  #678986 0%,#23538a 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(-45deg,  #678986 0%,#23538a 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(-45deg,  #678986 0%,#23538a 100%); /* IE10+ */
+  background: linear-gradient(135deg,  #678986 0%,#23538a 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#678986', endColorstr='#23538a',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+}
+
+.red{
+  color: red;
+}
+
+.pure-button{
+  padding: 0;
+}
+
+.ion-loading-c{
+  text-align: center;
+  width: 100%;
+  margin-top: 80px;
+  font-size: 40px;
+  color: white;
+}
+
+.main{
+  overflow: hidden;
+  transition: all 2s ease;
+  width: 600px;
+  height: 200px;
+  margin: 0 auto;
+  border-radius: 15px;
+  background-color: rgba(255,255,255,0.5);
+}
+
+.main.larger{
+  height: 600px;
+}
+
+header{
+  width: 730px;
+  margin: 0 auto;
+}
+
+h1{
+  transition: all 2s ease;
+  color: white;
+  font-family: Lato;
+  font-weight: 100;
+  text-align: center;
+  font-size: 120px;
+  margin: 0;
+  padding: 90px 0;
+}
+
+h1.smaller{
+  padding: 0;
+}
+
+h2{
+  color: white;
+  font-family: Lato;
+  font-weight: 100;
+  text-align: center;
+  font-size: 40px;
+  margin: 10px 0;
+  padding-top: 15px;
+}
+
+.attribute-form {
+  width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.attribute-form input{
+  margin: 10px auto;
+}
+
+.attribute-form button{
+  display: block;
+  margin: 5px auto;
+  width: 30%;
+  height: 40px;
+  background-color: lightseagreen;
+  font-size: 30px;
+  color: white;
+}
+
+header span{
+  transition: all 1s ease;
+  opacity: 1;
+}
+
+header span.hidden{
+  opacity: 0;
+}
+
+#username{
+  font-size: 18px;
+  font-weight: 300;
+  color: white;
+  transition: all 4s ease;
+  position: relative;
+  top: 85px;
+  left: 120px;
+  display: inline;
+  opacity: 0;
+}
+
+#host{
+  font-size: 18px;
+  font-weight: 300;
+  color: white;
+  transition: all 4s ease;
+  position: relative;
+  top: 85px;
+  left: 400px;
+  display: inline;
+  opacity: 0;
+}
+
+#host.visible, #username.visible{
+  opacity: 1;
+}
+
+.messageList{
+  height: 530px;
+  padding-top: 10px;
+  overflow-y: scroll;
+}
+
+.message-form{
+  margin: 20px;
+}
+
+input[type=text].message-input{
+  width: 97%;
+  height: 30px;
+  font-size: 11px;
+}
+
+.message-submit{
+  width: 100%;
+  height: 30px;
+  background-color: lightseagreen;
+  border: none;
+  font-size: 28px;
+  color: white;
+}
+
+.message{
+  font-weight: 300;
+  clear: both;
+  min-width: 10%;
+  max-width: 100%;
+}
+
+.message .message-text{
+  color: white;
+  padding: 8px;
+  margin: 2.5px 0;
+  max-width: 95%;
+  overflow-wrap: break-word;
+  min-height: 18px;
+}
+
+.message.self .message-text{
+  float: right;
+  text-align: right;
+  background-color: steelblue;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.message.ext .message-text{
+  float:left;
+  text-align: left;
+  background-color: teal;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.message.self .message-author{
+  padding: 14px 5px 8px;
+  font-size: 12px;
+  float: right;
+}
+
+.message.ext .message-author{
+  padding: 14px 5px 8px;
+  font-size: 12px;
+  float: left;
+}
+
