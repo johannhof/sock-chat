@@ -66,6 +66,8 @@
         document.getElementById('chat').classList.add('visible');
         document.getElementById('title-text-left').classList.add('hidden');
         document.getElementById('title-text-right').classList.add('hidden');
+        document.getElementById('username-text').innerHTML = this.state.name;
+        document.getElementById('host-text').innerHTML = this.state.host;
         document.getElementById('username').classList.add('visible');
         document.getElementById('host').classList.add('visible');
 

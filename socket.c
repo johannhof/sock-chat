@@ -46,6 +46,8 @@ void talk_to_client(void* d){
       memset(receive_buffer, '0', strlen(receive_buffer));
     }else{
 
+      // TODO skip if message is too long (or implement handling of longer messages)
+
       // "parse" the incoming data into a frame
       // TODO make a function in ws
       struct bit_frame* in = (struct bit_frame*) &receive_buffer[0];
@@ -149,11 +151,14 @@ void startSocket(int port){
     }
 
 
+    // create new client
     client* c = malloc(sizeof(client));
     c->connfd = connfd;
     c->connected = 1;
     c->index = clients_index;
     clients[clients_index++] = c;
+
+    // TODO handle clients_index being to big
 
     pthread_t* thread1 = malloc(sizeof(pthread_t));
     c->thread = thread1;
