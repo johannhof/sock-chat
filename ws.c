@@ -30,8 +30,8 @@ char* ws_get_message(const char* receive_buffer){
 
   // "parse" the incoming data into a frame
   struct bit_frame* in = (struct bit_frame*) &receive_buffer[0];
-  uint8_t *keys = (uint8_t*) &receive_buffer[2];
-  uint8_t *encoded = (uint8_t*) &receive_buffer[6];
+  unsigned char *keys = (unsigned char*) &receive_buffer[2];
+  unsigned char *encoded = (unsigned char*) &receive_buffer[6];
 
   char* decoded = malloc(in->PAYLOAD + 1);
 

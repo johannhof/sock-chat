@@ -7,11 +7,29 @@ typedef struct client {
   pthread_t* thread;
 }client;
 
-time_t ticks;
-client* clients[100];
+const int MAX_CLIENTS = 200;
+client* clients[MAX_CLIENTS];
 int clients_index = 0;
 
-void talk_to_client(void* d){
+/**
+ * Send message to all clients except the one with the connfd specified in the third argument
+ */
+void send_to_all(char* message, int size, int connfd){
+  for (int i = 0; i < MAX_CLIENTS; i++) {
+    if(clients[i] && clients[i]->connfd != connfd){
+      printf("Sending to %d\n", i);
+
+      if(!~send(clients[i]->connfd, message, size, 0)){
+        fprintf(stderr, "%s%d\n", "Warning: Error sending message to client ", i);
+
+        // unpolitely disconnect the client
+        clients[i]->connected = 0;
+      }
+    }
+  }
+}
+
+void talk_to_client(const void* d){
 
   char sendBuff[1025];
   memset(sendBuff, '0', sizeof(sendBuff));
@@ -26,7 +44,7 @@ void talk_to_client(void* d){
   while (c->connected) {
     int read_bytes = recv(c->connfd,receive_buffer,bufsize,0);
     if(read_bytes <= 0){
-      printf("Error in %d?\n", c->index);
+      printf("Slot %d seems to have disconnected.\n", c->index);
       break;
     }
 
@@ -41,16 +59,19 @@ void talk_to_client(void* d){
         fprintf(stderr, "%s\n", "Warning: Error sending handshake to client!");
       }
 
-      // cleanup
       free(response);
       memset(receive_buffer, '0', strlen(receive_buffer));
     }else{
 
-      // TODO skip if message is too long (or implement handling of longer messages)
-
       // "parse" the incoming data into a frame
       // TODO make a function in ws
       struct bit_frame* in = (struct bit_frame*) &receive_buffer[0];
+
+      // skip if message is too long
+      // TODO implement handling of longer messages
+      if(in->PAYLOAD > 125){
+        continue;
+      }
 
       char* decoded = ws_get_message(receive_buffer);
 
@@ -74,22 +95,16 @@ void talk_to_client(void* d){
       // our new message
       char message [frame_size + in->PAYLOAD + 1];
 
+      // copy the response frame
       memcpy(message, &frame, frame_size);
+
+      // copy the response message
       memcpy(&message[frame_size], &decoded[0], frame.PAYLOAD + 1);
 
-      printf("We are in thread %d\n", c->index);
+      printf("Slot %d sending a message...\n", c->index);
       // send message to each client that is not our client
-      for (int i = 0; i < clients_index; i++) {
-        if(clients[i] && clients[i]->connfd != c->connfd){
-          printf("Sending to %d\n", i);
-
-          // ATTENTION in->PAYLOAD is without + 1 on purpose, to avoid decoding errors
-          if(!~send(clients[i]->connfd, message, frame_size + in->PAYLOAD, 0)){
-            fprintf(stderr, "%s%d\n", "Warning: Error sending message to client ", i);
-            clients[i]->connected = 0;
-          }
-        }
-      }
+      // ATTENTION in->PAYLOAD is without + 1 on purpose, to avoid decoding errors
+      send_to_all(message, frame_size + in->PAYLOAD, c->connfd);
 
       free(decoded);
       memset(receive_buffer, '0', strlen(receive_buffer));
@@ -105,7 +120,7 @@ void talk_to_client(void* d){
   pthread_exit(0);
 }
 
-void startSocket(int port){
+void startSocket(const int port){
 
   int listenfd = 0, connfd = 0;
   struct sockaddr_in serv_addr;
@@ -119,7 +134,6 @@ void startSocket(int port){
   // tell socket we want to reuse it (enables easy restart)
   int opt = 1;
   setsockopt(listenfd,SOL_SOCKET,SO_REUSEADDR, (char *)&opt,sizeof(opt));
-
 
   // fill with zeroes
   memset(&serv_addr, '0', sizeof(serv_addr));
@@ -155,11 +169,22 @@ void startSocket(int port){
     client* c = malloc(sizeof(client));
     c->connfd = connfd;
     c->connected = 1;
+
+    // check for empty slot in client array
+    while(clients[clients_index]){
+      clients_index++;
+      if(clients_index == MAX_CLIENTS){
+        clients_index = 0;
+      }
+    }
+
+    printf("Put client in slot %d\n", clients_index);
+
+    // put client in array
     c->index = clients_index;
-    clients[clients_index++] = c;
+    clients[clients_index] = c;
 
-    // TODO handle clients_index being to big
-
+    // start new thread
     pthread_t* thread1 = malloc(sizeof(pthread_t));
     c->thread = thread1;
     if (pthread_create (thread1, NULL, (void *) talk_to_client, (void *) c)) {

@@ -14,7 +14,7 @@ typedef union ws_frame{
     unsigned int PAYLOAD : 7;
     unsigned int MASK : 1;
   };
-  uint16_t raw_frame;
+  unsigned int raw_frame;
 }ws_frame;
 
 char* ws_handshake(const char* receive_buffer);
