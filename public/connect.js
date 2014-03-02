@@ -16,7 +16,7 @@
       var messageInput = this.refs.message.getDOMNode();
       this.state.messages.push({message: messageInput.value, author: this.state.name, origin: "self"});
       localStorage.chat_messages = JSON.stringify(this.state.messages);
-      this.state.socket.send(this.state.name + "|" + messageInput.value);
+      this.state.socket.send("a" + this.state.name + "|" + messageInput.value);
       this.setState({}, function () {
         var list = this.refs.list.getDOMNode();
         list.scrollTop = list.scrollHeight;
@@ -70,6 +70,11 @@
         document.getElementById('host-text').innerHTML = this.state.host;
         document.getElementById('username').classList.add('visible');
         document.getElementById('host').classList.add('visible');
+        document.getElementById('host').onclick = function () {
+          this.state.socket.close();
+          this.setState({message: "Connection closed",
+                         loading: false, connected: false});
+        }.bind(this);
 
         this.state.socket.onmessage = function (event) {
           var parts = event.data.split("|");
@@ -116,7 +121,7 @@
                    author:value.author,
                    message:value.message,
                    origin:value.origin} )
-        )
+        );
       });
 
       return (
@@ -147,7 +152,7 @@
           React.DOM.span( {className:"message-text"}, this.props.message),
           React.DOM.span( {className:"message-author"}, this.props.author)
         )
-      )
+      );
     }
   });
 

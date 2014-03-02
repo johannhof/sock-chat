@@ -115,6 +115,7 @@ header span.hidden{
   left: 120px;
   display: inline;
   opacity: 0;
+  z-index: 1;
 }
 
 #host{
@@ -127,6 +128,8 @@ header span.hidden{
   left: 400px;
   display: inline;
   opacity: 0;
+  cursor: pointer;
+  z-index: 1;
 }
 
 #host.visible, #username.visible{

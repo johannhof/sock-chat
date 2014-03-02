@@ -22,11 +22,43 @@ void send_to_all(char* message, int size, int connfd){
       if(!~send(clients[i]->connfd, message, size, 0)){
         fprintf(stderr, "%s%d\n", "Warning: Error sending message to client ", i);
 
-        // unpolitely disconnect the client
+        // politely disconnect the client
         clients[i]->connected = 0;
       }
     }
   }
+}
+
+void new_message(client* c, char* decoded, struct bit_frame* in){
+  // emergency exit if it is actually some junk
+  if(!strstr(decoded, "|")){
+    return;
+  }
+
+  // response frame size
+  int frame_size = 2;
+
+  // copy the frame for the response
+  // TODO: might be unneccessary
+  struct bit_frame frame;
+  memcpy(&frame, in, frame_size);
+
+  // server responses are not masked
+  frame.MASK = 0;
+
+  // our new message
+  char message [frame_size + in->PAYLOAD];
+
+  // copy the response frame
+  memcpy(message, &frame, frame_size);
+
+  // copy the response message
+  memcpy(&message[frame_size], &decoded[1], frame.PAYLOAD);
+
+  printf("Slot %d sending a message...\n", c->index);
+
+  // send message to each client that is not our client
+  send_to_all(message, frame_size + in->PAYLOAD, c->connfd);
 }
 
 void talk_to_client(const void* d){
@@ -75,36 +107,13 @@ void talk_to_client(const void* d){
 
       char* decoded = ws_get_message(receive_buffer);
 
-      // if it is actually a message and not some junk
-      // TODO make a less implicit way of finding this out
-      if(!strstr(decoded, "|")){
-        continue;
+      switch(decoded[0]){
+        case 'a':
+          new_message(c, decoded, in);
+          break;
+        default:
+          printf("Could not process message. Keybyte is %c\n", decoded[0]);
       }
-
-      // response frame size
-      int frame_size = 2;
-
-      // copy the frame for the response
-      // TODO: might be unneccessary
-      struct bit_frame frame;
-      memcpy(&frame, in, frame_size);
-
-      // server responses are not masked
-      frame.MASK = 0;
-
-      // our new message
-      char message [frame_size + in->PAYLOAD + 1];
-
-      // copy the response frame
-      memcpy(message, &frame, frame_size);
-
-      // copy the response message
-      memcpy(&message[frame_size], &decoded[0], frame.PAYLOAD + 1);
-
-      printf("Slot %d sending a message...\n", c->index);
-      // send message to each client that is not our client
-      // ATTENTION in->PAYLOAD is without + 1 on purpose, to avoid decoding errors
-      send_to_all(message, frame_size + in->PAYLOAD, c->connfd);
 
       free(decoded);
       memset(receive_buffer, '0', strlen(receive_buffer));
@@ -163,7 +172,6 @@ void startSocket(const int port){
     }else{
       printf("A Client connected\n");
     }
-
 
     // create new client
     client* c = malloc(sizeof(client));

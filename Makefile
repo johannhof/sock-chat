@@ -1,6 +1,8 @@
-CC = clang
+CFLAGS = -std=c99
 
-server: server.o socket.o crypto.o ws.o -lcrypto
+server: server.o socket.o crypto.o ws.o -lcrypto -lpthread
+
+-lpthread:
 
 -lcrypto:
 

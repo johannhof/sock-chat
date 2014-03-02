@@ -1,6 +1,7 @@
 #include "ws.h"
 
 const char* RESPONSE_TEXT = "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ";
+const char* KEY = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
 char* ws_handshake(const char* receive_buffer){
 
@@ -8,7 +9,7 @@ char* ws_handshake(const char* receive_buffer){
   const char* stop = strstr(index, "\r");
   char key[1024];
   strncpy(key, index, stop - index);
-  strncat(key, "258EAFA5-E914-47DA-95CA-C5AB0DC85B11", 37);
+  strncat(key, KEY, 37);
 
   unsigned char hashed[200];
   SHA1(key, strlen(key), hashed);
